@@ -6,6 +6,10 @@ __pycache__
 db.sqlite3
 media
 
+# Nextflow #
+project/.nextflow/
+work/
+
 # Backup files # 
 *.bak 
 
