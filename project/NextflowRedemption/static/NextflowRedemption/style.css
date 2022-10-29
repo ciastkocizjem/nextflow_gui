@@ -1,3 +1,41 @@
 h1 {
-    color: red;
+    color: rgb(47, 0, 255);
+}
+
+body {
+    text-align: center !important;
+}
+
+button{
+    border-radius: 5px !important;
+    padding-inline: 15px !important;
+}
+
+.col-2, .col-3{
+    margin-top: 1rem !important;
+}
+
+.align-end{
+    text-align: end;
+}
+
+.align-start{
+    text-align: start;
+}
+
+input{
+    width: -webkit-fill-available;
+}
+
+input[type="radio"]{
+    width: unset;
+}
+
+table{
+    border: 1px solid black;
+    width: -webkit-fill-available;
+}
+
+th, td{
+    border-width: 1px !important;
 }
