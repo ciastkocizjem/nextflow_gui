@@ -28,6 +28,30 @@
                 x.style.display = "none";
             }
         }
+
+        var width = 0;
+        
+        var startProgress = function startProgress(nr) {
+            width++;
+            var progress = document.getElementById('progress'+nr);
+
+            if (width == 100) {
+                progress.style.accentColor = "green";
+            } else if (width < 50) {
+                progress.style.accentColor = "blue";
+            }
+            
+            progress.value = width;
+            
+            if (width < 100) {
+            window.requestAnimationFrame(() => startProgress(nr));
+            } else {
+                window.cancelAnimationFrame(() => startProgress(nr));
+            }
+        };
+    </script>
+    <script>
+
     </script>
     </head>
     <body class="m-3">
@@ -45,11 +69,11 @@
                     <img src="{% static 'Images/wrench.png' %}" alt="config">
                 </div>
                 <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                    <progress class="me-2" value="100" max="100"></progress>
+                    <progress id="progress1" class="me-2" value="100" max="100"></progress>
                     <span>100%</span>
                 </div>
                 <div class="col-1" >
-                    <img src="{% static 'Images/run.png' %}" alt="Run">
+                    <img src="{% static 'Images/run.png' %}" alt="Run" onclick="startProgress(1)">
                 </div>
                 <div class="col-1">
                     <button onclick="toggleDetail(1)">details</button>
