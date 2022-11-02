@@ -10,6 +10,10 @@
         <h1>config page</h1>
         <a href="{% url 'index' %}">main page</a>
         <div class="row justify-content-center">
+            <div class="col-2 align-end">Name</div>
+            <div class="col-3"><input/></div>
+            <div class="col-2"></div>
+            <div class="w-100"></div>
             <div class="col-2 align-end">Pipeline</div>
             <div class="col-3"><input/></div>
             <div class="col-2 align-start"><button>Explore</button></div>
@@ -48,12 +52,26 @@
                       <tr>
                         <td>param1</td>
                         <td>val1</td>
-                        <td>X</td>
+                        <td><button>X</button></td>
                       </tr>
                 </table>
             </div>
-            <div class="col-2 align-start" style="align-self: flex-end;"><button >Add</button></div>
+            <div class="col-2"></div>
+            <div class="w-100"></div>
+            <div class="col-2"></div>
+          <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    <input/>
+                </div>
+                <div class="col-6">
+                    <input/>
+                </div>
+            </div>
           </div>
-          <button class="m-5">Run</button>
+          <div class="col-2 align-start" style="align-self: flex-end;"><button >Add</button></div>
+          </div>
+          
+          <button class="m-5">Add pipeline</button>
     </body>
 </html>
