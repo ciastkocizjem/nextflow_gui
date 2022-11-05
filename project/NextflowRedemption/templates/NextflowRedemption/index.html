@@ -18,10 +18,13 @@
         .col-1{
             width: fit-content;
         }
+        select{
+            width: 10rem;
+        }
     </style>
     <script>
         function toggleDetail(nr){
-            var x = document.getElementById('tempDetails'+nr);
+            var x = document.getElementById(nr+'tempDetails');
             if (x.style.display === "none") {
                 x.style.display = "block";
             } else {
@@ -29,11 +32,17 @@
             }
         }
 
+        function configPreset(){
+            var url = "{% url 'config' %}";
+            var s = document.getElementById("presetSelect");
+            document.location.href = url + "?=" + s.value;
+        }
+
         var width = 0;
         
         var startProgress = function startProgress(nr) {
             width++;
-            var progress = document.getElementById('progress'+nr);
+            var progress = document.getElementById(nr+'progress');
 
             if (width == 100) {
                 progress.style.accentColor = "green";
@@ -50,98 +59,48 @@
             }
         };
     </script>
-    <script>
-
-    </script>
     </head>
     <body class="m-3">
-
         <h1>main page</h1>
-        <button><a href="{% url 'config' %}">Add pipeline</a></button>
+        <button class="m-3"><a href="{% url 'config' %}">Add preset</a></button>
+        <div id="presetsDiv">
+            <select size="5" id="presetSelect">
+                {% for preset in presets %}
+                <option value={{ preset.id }}>{{preset.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button onclick="configPreset()">Config</button>
+        {% for pipe in pipes %}
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-1"></div>
-                <div class="col-5 align-start">My_pipeline1(arg1,arg2)</div>
+                <div class="col-5 align-start">{{pipe.name}}</div>
                 <div class="col-1"></div>
                 <div class="col-1"></div>
                 <div class="w-100"></div>
-                <div class="col-1 align-end">
+                <!-- <div class="col-1 align-end">
                     <img src="{% static 'Images/wrench.png' %}" alt="config">
-                </div>
+                </div> -->
                 <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                    <progress id="progress1" class="me-2" value="100" max="100"></progress>
+                    <progress id={{ pipe.id|stringformat:'d'|add:'progress' }} class="me-2" value="100" max="100"></progress>
                     <span>100%</span>
                 </div>
                 <div class="col-1" >
-                    <img src="{% static 'Images/run.png' %}" alt="Run" onclick="startProgress(1)">
+                    <img src="{% static 'Images/run.png' %}" alt="Run" onclick="startProgress({{ pipe.id }})">
                 </div>
                 <div class="col-1">
-                    <button onclick="toggleDetail(1)">details</button>
+                    <button onclick="toggleDetail({{ pipe.id }})">details</button>
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">
-                    <textarea id="tempDetails1" class="m-3" rows="5" cols="33" style="display: none;">
+                    <textarea id={{ pipe.id|stringformat:'d'|add:'tempDetails' }} class="m-3" rows="5" cols="33" style="display: none;">
                        My_pipeline1 &#13;&#10; arg1: 5 &#13;&#10; arg2: ZIO &#13;&#10; status: completed &#13;&#10; ...
                     </textarea>
                 </div>
             </div>
         </div>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-1"></div>
-                <div class="col-5 align-start">My_pipeline2(arg1,arg2,arg3)</div>
-                <div class="col-1"></div>
-                <div class="col-1"></div>
-                <div class="w-100"></div>
-                <div class="col-1">
-                    <img src="{% static 'Images/wrench.png' %}" alt="config">
-                </div>
-                <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                    <progress class="me-2" value="0" max="100"></progress>
-                    <span>0%</span>
-                </div>
-                <div class="col-1" >
-                    <img src="{% static 'Images/run.png' %}" alt="Run">
-                </div>
-                <div class="col-1">
-                    <button onclick="toggleDetail(2)">details</button>
-                </div>
-                <div class="w-100"></div>
-                <div class="col-6">
-                    <textarea id="tempDetails2" class="m-3" rows="5" cols="33" style="display: none;">
-                       My_pipeline1 &#13;&#10; arg1: 5 &#13;&#10; arg2: ZIO &#13;&#10; arg3: xyz &#13;&#10; status: completed &#13;&#10; ...
-                    </textarea>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-1"></div>
-                <div class="col-5 align-start">My_pipeline3()</div>
-                <div class="col-1"></div>
-                <div class="col-1"></div>
-                <div class="w-100"></div>
-                <div class="col-1">
-                    <img src="{% static 'Images/wrench.png' %}" alt="config">
-                </div>
-                <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                    <progress class="me-2" value="23" max="100"></progress>
-                    <span>23%</span>
-                </div>
-                <div class="col-1" >
-                    <img src="{% static 'Images/run.png' %}" alt="Run">
-                </div>
-                <div class="col-1">
-                    <button onclick="toggleDetail(3)">details</button>
-                </div>
-                <div class="w-100"></div>
-                <div class="col-6">
-                    <textarea id="tempDetails3" class="m-3" rows="5" cols="33" style="display: none;">
-                       My_pipeline3 &#13;&#10; status: completed &#13;&#10; ...
-                    </textarea>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
         <button class="m-3">Run all</button>
     </body>
 </html>
