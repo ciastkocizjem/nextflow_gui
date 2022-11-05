@@ -2,7 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-#import nextflow
 
 
 def main():
@@ -18,10 +17,6 @@ def main():
         ) from exc
 
     execute_from_command_line(sys.argv)
-
-    #pipeline1 = nextflow.Pipeline("pipelines/my-pipeline.nf")
-    #execution = pipeline1.run();
-    #print(execution.status);
 
 
 if __name__ == '__main__':
