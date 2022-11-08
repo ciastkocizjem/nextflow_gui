@@ -4,5 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('config',views.config, name='config')
+    path('config',views.config, name='config'),
+    path('runPipe', views.PipeTest,name = 'PipeTest'),
+    path('getPipeProg', views.PipeProgress,name = 'PipeProgress')
 ]

@@ -37,28 +37,47 @@
             var s = document.getElementById("presetSelect");
             document.location.href = url + "?=" + s.value;
         }
-
-        var width = 0;
         
-        var startProgress = function startProgress(nr) {
-            width++;
+        function startProgress(nr) {
             var progress = document.getElementById(nr+'progress');
+            progress.value = 0;
+            var details = document.getElementById(nr+'tempDetails');
+            details.innerHTML = ""
+            var percent = document.getElementById(nr+'percent');
+            percent.innerHTML = "0%"
 
-            if (width == 100) {
-                progress.style.accentColor = "green";
-            } else if (width < 50) {
-                progress.style.accentColor = "blue";
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'PipeTest' %}",
+            })
+            execProgress(nr);
+        }
+
+        function execProgress(nr){
+            var progress = document.getElementById(nr+'progress');
+            var details = document.getElementById(nr+'tempDetails');
+            var percent = document.getElementById(nr+'percent');
+
+            if(progress.value < 100){
+                $.ajax({
+                type: 'GET',
+                url: "{% url 'PipeProgress' %}",
+                success: function (response) {
+                    progress.value = response["execPercent"];
+                    percent.innerHTML = response["execPercent"] + "%"
+                    details.innerHTML = response["execStatus"]
+                },
+                error: function (response) {
+                    alert(response["statusText"] + " " + response["status"]);
+                },
+                complete: function() {
+                    setTimeout(execProgress(nr), 1000);
+                }
+                })
             }
-            
-            progress.value = width;
-            
-            if (width < 100) {
-            window.requestAnimationFrame(() => startProgress(nr));
-            } else {
-                window.cancelAnimationFrame(() => startProgress(nr));
-            }
-        };
+        }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body class="m-3">
         <h1>main page</h1>
@@ -84,7 +103,7 @@
                 </div> -->
                 <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
                     <progress id={{ pipe.id|stringformat:'d'|add:'progress' }} class="me-2" value="100" max="100"></progress>
-                    <span>100%</span>
+                    <span id={{ pipe.id|stringformat:'d'|add:'percent' }}>100%</span>
                 </div>
                 <div class="col-1" >
                     <img src="{% static 'Images/run.png' %}" alt="Run" onclick="startProgress({{ pipe.id }})">
@@ -94,8 +113,8 @@
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">
+                    <!-- My_pipeline1 &#13;&#10; arg1: 5 &#13;&#10; arg2: ZIO &#13;&#10; status: completed &#13;&#10; ... -->
                     <textarea id={{ pipe.id|stringformat:'d'|add:'tempDetails' }} class="m-3" rows="5" cols="33" style="display: none;">
-                       My_pipeline1 &#13;&#10; arg1: 5 &#13;&#10; arg2: ZIO &#13;&#10; status: completed &#13;&#10; ...
                     </textarea>
                 </div>
             </div>
