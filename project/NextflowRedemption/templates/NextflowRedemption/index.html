@@ -35,7 +35,7 @@
         function configPreset(){
             var url = "{% url 'config' %}";
             var s = document.getElementById("presetSelect");
-            document.location.href = url + "?=" + s.value;
+            document.location.href = url +"/"+ s.value;
         }
         
         function startProgress(nr) {
