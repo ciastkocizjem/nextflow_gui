@@ -6,6 +6,12 @@ import nextflow
 #import random
 from NextflowRedemption.models import Pipeline, Template
 from NextflowRedemption.db_utility import save, load
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 
 def index(request):
     presets = load("template")
@@ -24,7 +30,27 @@ def index(request):
     context = { 'presets': presets, 'pipes': pipes }
     return render(request, 'NextflowRedemption/index.html', context)
 
+def login(request):
+    context = { 'x': 'x' }
+    if (request.method == 'POST'):
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return render(request, 'Config/index.html', context)
+        else:
+            raise PermissionDenied()
+    return render(request, 'NextflowRedemption/login.html', context)
 
+def logout(request):
+    presets = load("template")
+    pipes = load("pipeline")
+    context = { 'presets': presets, 'pipes': pipes }
+    auth_logout(request)
+    return render(request, 'NextflowRedemption/index.html', context)
+
+@login_required(login_url='/main/login')
 def config(request):
     if(request.method == 'POST'):
         presets = load("template")
