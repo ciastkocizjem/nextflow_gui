@@ -53,6 +53,13 @@
             execProgress(nr);
         }
 
+        function stopProgress(){
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'StopProgress' %}",
+            })
+        }
+
         function execProgress(nr){
             var progress = document.getElementById(nr+'progress');
             var details = document.getElementById(nr+'tempDetails');
@@ -110,6 +117,7 @@
                 </div>
                 <div class="col-1">
                     <button onclick="toggleDetail({{ pipe.id }})">details</button>
+                    <button onclick="stopProgress()">Stop</button>
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">

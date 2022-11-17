@@ -12,6 +12,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+import signal
 
 def index(request):
     presets = load("template")
@@ -115,6 +116,9 @@ def TableData(request):
     val1 = request.POST['table']
     return JsonResponse({"_":""},status=200)
 
+def StopProcess(request):
+    signal.SIGTERM
+    return JsonResponse({"_":""},status=200)
 
 def PipeTest(request):
     pipeline1 = nextflow.Pipeline("pipelines/my-pipeline.nf")
