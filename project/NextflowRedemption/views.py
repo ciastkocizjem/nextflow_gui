@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import render
 from django.http import JsonResponse
 import nextflow
-#import random
+import pdb
 from NextflowRedemption.models import Pipeline, Template
 from NextflowRedemption.db_utility import save, load
 from django.contrib.auth.models import User
@@ -12,19 +12,14 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
+
 
 def index(request):
     presets = load("template")
     pipes = load("pipeline")
-    # c = 0
-    # for i in range(random.randrange(3, 10)):
-    #     pipe = nextflow.Pipeline("/pipelines/pipe"+str(i),config="/configs/conf"+str(i))
-    #     preset = Template(i,"preset"+str(i),pipe)
-    #     presets.append(preset)
-    #     pipeObj = Pipeline(i,"preset"+str(c)+"_pipe"+str(c+1),pipe)
-    #     pipes.append(pipeObj)
-    #     c+=1
-
+    #User.objects.create_user('admin', 'admin', 'admin')
     save("template", presets)
     save("pipeline", pipes)
     context = { 'presets': presets, 'pipes': pipes }
@@ -115,23 +110,38 @@ def TableData(request):
     val1 = request.POST['table']
     return JsonResponse({"_":""},status=200)
 
-
+@csrf_exempt
 def PipeTest(request):
-    pipeline1 = nextflow.Pipeline("pipelines/my-pipeline.nf")
-    #execution = pipeline1.run()
-    for execution in pipeline1.run_and_poll(sleep=1):
+    
+    idx = int(request.POST["nr"][0])
+    #pdb.set_trace()
+    pipes = load("pipeline")
+    selectedPipe = None
+    for x in pipes:
+        if x.id == idx:
+            selectedPipe = x.pipeline
+            break
+    pipelineToRun = nextflow.Pipeline(selectedPipe.path)
+    for execution in pipelineToRun.run_and_poll(sleep=1):
         global execProg
         execProg = execution
     return JsonResponse({"_":""},status=200)
 
+@csrf_exempt
 def PipeProgress(request):
+    try: execProg
+    except NameError: return JsonResponse({"execStatus": "none","execPercent":0, "done":0,"count":0}, status=200)
     count = len(execProg.process_executions)
     done = 0
+    pdb.set_trace()
+    
     for proc in execProg.process_executions:
        if(proc.status == "COMPLETED"): 
         done+=1
     if(done == 0):
         perc = 0
     else:
-        perc = done/count*100
+        perc = (done/count)*100
+    if(perc == 100):
+        del execProg
     return JsonResponse({"execStatus": execProg.status,"execPercent":perc, "done":done,"count":count}, status=200)

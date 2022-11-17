@@ -37,7 +37,8 @@
             var s = document.getElementById("presetSelect");
             document.location.href = url +"/"+ s.value;
         }
-        
+        var timeOutid = 0;
+
         function startProgress(nr) {
             var progress = document.getElementById(nr+'progress');
             progress.value = 0;
@@ -47,13 +48,15 @@
             percent.innerHTML = "0%"
 
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: "{% url 'PipeTest' %}",
+                data: {"nr":nr}
             })
-            execProgress(nr);
+            timeOutid = setTimeout(execProg(nr), 1000)
         }
+        
 
-        function execProgress(nr){
+        var execProg = function execProgress(nr){
             var progress = document.getElementById(nr+'progress');
             var details = document.getElementById(nr+'tempDetails');
             var percent = document.getElementById(nr+'percent');
@@ -62,16 +65,16 @@
                 $.ajax({
                 type: 'GET',
                 url: "{% url 'PipeProgress' %}",
+                async: true,
+                timeout: 1000,
                 success: function (response) {
                     progress.value = response["execPercent"];
                     percent.innerHTML = response["execPercent"] + "%"
                     details.innerHTML = response["execStatus"]
+                    //timeOutid = setTimeout(execProg(nr), 1000);
                 },
                 error: function (response) {
                     alert(response["statusText"] + " " + response["status"]);
-                },
-                complete: function() {
-                    setTimeout(execProgress(nr), 1000);
                 }
                 })
             }
