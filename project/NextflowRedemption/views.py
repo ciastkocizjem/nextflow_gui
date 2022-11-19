@@ -15,6 +15,7 @@ from django.contrib.auth import logout as auth_logout
 from django.views.decorators.csrf import csrf_exempt
 
 from NextflowRedemption.tasks import StartPipe
+import signal
 
 def index(request):
     presets = load("template")
@@ -110,6 +111,11 @@ def TableData(request):
     val1 = request.POST['table']
     return JsonResponse({"_":""},status=200)
 
+
+def StopProcess(request):
+    signal.SIGTERM
+    return JsonResponse({"_":""},status=200)
+    
 @csrf_exempt
 def PipeTest(request):
     idx = int(request.GET["nr"][0])
