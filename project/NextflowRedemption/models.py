@@ -4,9 +4,11 @@ import nextflow
 # Create your models here.
 
 class Pipeline:
-    def __init__(self, id, name, pipeline):
+    def __init__(self, id, name, status, log, pipeline):
         self.id = id
         self.name = name
+        self.status = status
+        self.log = log
         self.pipeline = pipeline
 
 class Template:

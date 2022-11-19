@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import render
 from django.http import JsonResponse
 import nextflow
-#import random
+import pdb
 from NextflowRedemption.models import Pipeline, Template
 from NextflowRedemption.db_utility import save, load
 from django.contrib.auth.models import User
@@ -12,18 +12,13 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.views.decorators.csrf import csrf_exempt
+
+from NextflowRedemption.tasks import StartPipe
 
 def index(request):
     presets = load("template")
     pipes = load("pipeline")
-    # c = 0
-    # for i in range(random.randrange(3, 10)):
-    #     pipe = nextflow.Pipeline("/pipelines/pipe"+str(i),config="/configs/conf"+str(i))
-    #     preset = Template(i,"preset"+str(i),pipe)
-    #     presets.append(preset)
-    #     pipeObj = Pipeline(i,"preset"+str(c)+"_pipe"+str(c+1),pipe)
-    #     pipes.append(pipeObj)
-    #     c+=1
 
     save("template", presets)
     save("pipeline", pipes)
@@ -115,23 +110,31 @@ def TableData(request):
     val1 = request.POST['table']
     return JsonResponse({"_":""},status=200)
 
-
+@csrf_exempt
 def PipeTest(request):
-    pipeline1 = nextflow.Pipeline("pipelines/my-pipeline.nf")
-    #execution = pipeline1.run()
-    for execution in pipeline1.run_and_poll(sleep=1):
-        global execProg
-        execProg = execution
+    idx = int(request.GET["nr"][0])
+    #pdb.set_trace()
+    StartPipe.delay(idx)
     return JsonResponse({"_":""},status=200)
 
+@csrf_exempt
 def PipeProgress(request):
-    count = len(execProg.process_executions)
-    done = 0
-    for proc in execProg.process_executions:
-       if(proc.status == "COMPLETED"): 
-        done+=1
-    if(done == 0):
-        perc = 0
-    else:
-        perc = done/count*100
-    return JsonResponse({"execStatus": execProg.status,"execPercent":perc, "done":done,"count":count}, status=200)
+    idx = int(request.GET["nr"][0])
+    pipes = load("pipeline")
+    selectedPipe = None
+    for x in pipes:
+        if x.id == idx:
+            selectedPipe = x
+            break
+    # count = len(execProg.process_executions)
+    # done = 0
+    # for proc in execProg.process_executions:
+    #    if(proc.status == "COMPLETED"): 
+    #     done+=1
+    # if(done == 0):
+    #     perc = 0
+    # else:
+    #     perc = done/count*100
+    try: selectedPipe.status; selectedPipe.log
+    except: return JsonResponse({"execStatus": "running","details":"running"}, status=200)
+    return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log}, status=200)
