@@ -5,7 +5,7 @@ from django.http import JsonResponse
 import nextflow
 import pdb
 from NextflowRedemption.models import Pipeline, Template
-from NextflowRedemption.db_utility import save, load
+#from NextflowRedemption.db_utility import save, load
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -18,11 +18,11 @@ from NextflowRedemption.tasks import StartPipe
 import signal
 
 def index(request):
-    presets = load("template")
-    pipes = load("pipeline")
+    presets = Template.objects.all()
+    pipes = Pipeline.objects.all()
 
-    save("template", presets)
-    save("pipeline", pipes)
+    # save("template", presets)
+    # save("pipeline", pipes)
     context = { 'presets': presets, 'pipes': pipes }
     return render(request, 'NextflowRedemption/index.html', context)
 
@@ -40,8 +40,8 @@ def login(request):
     return render(request, 'NextflowRedemption/login.html', context)
 
 def logout(request):
-    presets = load("template")
-    pipes = load("pipeline")
+    presets = Template.objects.all()
+    pipes = Pipeline.objects.all()
     context = { 'presets': presets, 'pipes': pipes }
     auth_logout(request)
     return render(request, 'NextflowRedemption/index.html', context)
@@ -49,62 +49,73 @@ def logout(request):
 @login_required(login_url='/main/login')
 def config(request):
     if(request.method == 'POST'):
-        presets = load("template")
+        presets = Template.objects.all()
         data = request.POST
         name = data.get("name")
         pipeline = request.FILES.get("pipeline")
         print(request.FILES)
         config = request.FILES.get("config")
-        presets.append({
-            "py/object": "NextflowRedemption.models.Template",
-		    "id": len(presets),
-		    "name": name,
-		    "pipeline": {
-			    "py/object": "nextflow.pipeline.Pipeline",
-			    "path": pipeline,
-			    "config": config
-		    }
-        })
-        pipes = load("pipeline")
-        save("template", presets)
-        save("pipeline", pipes)
+
+        new_preset = Template.objects.create(name=name, template_path=pipeline, template_config=config)
+        # presets.append({
+        #     "py/object": "NextflowRedemption.models.Template",
+		#     "id": len(presets),
+		#     "name": name,
+		#     "pipeline": {
+		# 	    "py/object": "nextflow.pipeline.Pipeline",
+		# 	    "path": pipeline,
+		# 	    "config": config
+		#     }
+        # })
+        new_preset.save()
+        presets = Template.objects.all()
+        pipes = Pipeline.objects.all()
+        # save("template", presets)
+        # save("pipeline", pipes)
         context = { 'presets': presets, 'pipes': pipes }
         return render(request, 'NextflowRedemption/index.html', context)
-    presets = load("template")
-    pipes = load("pipeline")
+    presets = Template.objects.all()
+    pipes = Pipeline.objects.all()
     context = { 'presets': presets, 'pipes': pipes}
     return render(request, 'Config/index.html', context)
 
 def configEdit(request, id=None):
     if(request.method == 'POST'):
-        pipes = load("pipeline")
-        presets = load("template")
+        presets = Template.objects.all()
+        pipes = Pipeline.objects.all()
         data = request.POST
-        name = presets[id].name + "_" + data.get("name")
-        pipeline = data.get("pipeline")
-        config = data.get("config")
-        pipes.append({
-            "py/object": "NextflowRedemption.models.Pipeline",
-		    "id": len(pipes),
-		    "name": name,
-		    "pipeline": {
-			    "py/object": "nextflow.pipeline.Pipeline",
-			    "path": pipeline,
-			    "config": config,
-                "parameters": [
-                    {"name": "aaaa", "value": "bbbb"},
-                    {"name": "aaaa", "value": "bbbb"}
-                ]
-		    }
-        })
-        save("pipeline", pipes)
-        presets = load("template")
-        pipes = load("pipeline")
+        name = Template.objects.get(id = id).name + "_" + data.get("name")
+        pipeline = Template.objects.get(id = id).template_path
+        config = Template.objects.get(id = id).template_config
+
+        #dodać parametry bo teraz chyba nie są nawet zczytywane z widoku
+
+        new_pipe = Pipeline.objects.create(name=name, pipeline_path=pipeline, pipeline_config=config)
+        new_pipe.save()
+        pipes = Pipeline.objects.all()
+
+        # pipes.append({
+        #     "py/object": "NextflowRedemption.models.Pipeline",
+		#     "id": len(pipes),
+		#     "name": name,
+		#     "pipeline": {
+		# 	    "py/object": "nextflow.pipeline.Pipeline",
+		# 	    "path": pipeline,
+		# 	    "config": config,
+        #         "parameters": [
+        #             {"name": "aaaa", "value": "bbbb"},
+        #             {"name": "aaaa", "value": "bbbb"}
+        #         ]
+		#     }
+        # })
+        # save("pipeline", pipes)
+        # presets = load("template")
+        # pipes = load("pipeline")
         context = { 'presets': presets, 'pipes': pipes }
         return render(request, 'NextflowRedemption/index.html', context)
-    presets = load("template")
-    pipes = load("pipeline")
-    context = { 'preset': presets[id]}
+    presets = Template.objects.all()
+    pipes = Pipeline.objects.all()
+    context = { 'preset': Template.objects.get(id = id)}
     return render(request, 'Config/edit.html', context)
 
 def TableData(request):
@@ -126,7 +137,7 @@ def PipeTest(request):
 @csrf_exempt
 def PipeProgress(request):
     idx = int(request.GET["nr"][0])
-    pipes = load("pipeline")
+    pipes = Pipeline.objects.all()
     selectedPipe = None
     for x in pipes:
         if x.id == idx:

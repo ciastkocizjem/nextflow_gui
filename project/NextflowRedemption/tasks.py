@@ -2,7 +2,7 @@
 
 import os
 from celery import shared_task
-from NextflowRedemption.db_utility import save, load
+#from NextflowRedemption.db_utility import save, load
 import nextflow
 import pdb
 
@@ -14,25 +14,31 @@ def add(x, y):
 
 @shared_task()
 def StartPipe(idx):
-    pipes = load("pipeline")
-    selectedPipe = None
-    pipename = ""
-    for x in pipes:
-        if x.id == idx:
-            selectedPipe = x.pipeline
-            pipename = x.name
-            break
-    pipelineToRun = nextflow.Pipeline(selectedPipe.path)
+    #pipes = Pipeline.objects.all()
+    pipe = Pipeline.objects.get(id = idx)
+    # selectedPipe = pipe.pipeline_path
+    # pipename = pipe.name
+    # for x in pipes:
+    #     if x.id == idx:
+    #         selectedPipe = x.pipeline_path
+    #         pipename = x.name
+    #         break
+    pipelineToRun = nextflow.Pipeline(pipe.pipeline_path, pipe.pipeline_config)
     #pdb.set_trace()
-    if not os.path.exists(os.path.join('./pipelines', pipename)):
-        os.makedirs(os.path.join('./pipelines', pipename))
-    for execution in pipelineToRun.run_and_poll(sleep=1,location="./pipelines/"+pipename):
-        pipes = load("pipeline")
-        for x in pipes:
-            if x.id == idx:
-                pipes.remove(x)
-                break
-        nextflowPipe = nextflow.Pipeline(selectedPipe.path,selectedPipe.config)
-        update = Pipeline(idx,pipename,execution.status,execution.log,nextflowPipe)
-        pipes.append(update)
-        save("pipeline", pipes)
+    if not os.path.exists(os.path.join('./pipelines', pipe.name)):
+        os.makedirs(os.path.join('./pipelines', pipe.name))
+    for execution in pipelineToRun.run_and_poll(sleep=1,location="./pipelines/"+pipe.name):
+        # pipes = Pipeline.objects.all()
+        # Pipeline.objects.get(id = idx).delete()
+        # for x in pipes:
+        #     if x.id == idx:
+        #         pipes.remove(x)
+        #         break
+        # nextflowPipe = nextflow.Pipeline(pipe.pipeline_path,pipe.pipeline_config)
+        update_pipe = Pipeline.objects.get(id = idx)
+        update_pipe.status = execution.status
+        update_pipe.log = execution.log
+        # update = Pipeline(idx,pipe.name,execution.status,execution.log,nextflowPipe)
+        # pipes.append(update)
+        # save("pipeline", pipes)
+        update_pipe.save()

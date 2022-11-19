@@ -9,6 +9,8 @@ media
 # Nextflow #
 project/.nextflow/
 work/
+!project/pipelines/
+project/pipelines/*
 
 # Backup files # 
 *.bak 
