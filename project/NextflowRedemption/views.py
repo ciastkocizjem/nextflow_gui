@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import nextflow
 import pdb
-from NextflowRedemption.models import Pipeline, Template
+from NextflowRedemption.models import Pipeline, Template, Parameter
 #from NextflowRedemption.db_utility import save, load
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -46,15 +46,15 @@ def logout(request):
     auth_logout(request)
     return render(request, 'NextflowRedemption/index.html', context)
 
-@login_required(login_url='/main/login')
+# @login_required(login_url='/main/login')
 def config(request):
     if(request.method == 'POST'):
         presets = Template.objects.all()
         data = request.POST
         name = data.get("name")
-        pipeline = request.FILES.get("pipeline")
+        pipeline = data.get("pipeline")
         print(request.FILES)
-        config = request.FILES.get("config")
+        config = data.get("config")
 
         new_preset = Template.objects.create(name=name, template_path=pipeline, template_config=config)
         # presets.append({
@@ -113,13 +113,23 @@ def configEdit(request, id=None):
         # pipes = load("pipeline")
         context = { 'presets': presets, 'pipes': pipes }
         return render(request, 'NextflowRedemption/index.html', context)
-    presets = Template.objects.all()
-    pipes = Pipeline.objects.all()
-    context = { 'preset': Template.objects.get(id = id)}
+    presets = Template.objects.all().values()
+    pipes = Pipeline.objects.all().values()
+    parameters = Parameter.objects.all().values()
+    context = { 'preset': Template.objects.get(id = id), 'presets': presets, 'parameters': parameters}
     return render(request, 'Config/edit.html', context)
 
 def TableData(request):
-    val1 = request.POST['table']
+    data = request.POST
+    print(data.get('name'), data.get('value'), data.get('table'))
+    parameter = Parameter.objects.create(
+        id=None,
+        name=data.get('name'),
+        value=data.get('value')
+    )
+    parameter.save()
+    # val1 = request.POST['table']
+    # print(val1)
     return JsonResponse({"_":""},status=200)
 
 

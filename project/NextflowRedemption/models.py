@@ -30,3 +30,8 @@ class Template(models.Model):
     name = models.CharField(max_length=50)
     template_path = models.CharField(max_length=255)
     template_config = models.CharField(max_length=255, default=None, blank=True, null=True)
+
+class Parameter(models.Model):
+    # pipeline = models.ForeignKey(Pipeline, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    value = models.CharField(max_length=100)

@@ -7,10 +7,18 @@
 			$(document).ready(function(){
 				$(".add-row").click(function(){
 					var name = $("#name").val();
-					var email = $("#value").val();
-					var markup = "<tr><td><input type='checkbox' name='record'></td><td>" + name + "</td><td>" + email + "</td></tr>";
+					var value = $("#value").val();
+					var markup = "<tr><td name='value_name'>" + name + "</td><td name='value'>" + value + "</td></tr>";
 					$("table tbody").append(markup);
 
+					var url = window.location.pathname;
+					var id = url.substring(url.lastIndexOf('/') + 1);
+
+					// $.ajax({
+					// method: 'POST',
+					// url: "{% url 'TableData' %}",
+					// data: { csrfmiddlewaretoken: "{{csrf_token}}", 'name': name, 'value': value, 'id': id }
+					// })
 				});
 				
 				// Find and remove selected table rows
@@ -37,16 +45,15 @@
 					
 					let th_td_array = Array.from(th_td); // convert HTMLCollection to an Array
 					th_td_array = th_td_array.map(tag => tag.innerText); // get the text of each element
-					result.push(th_td_array);
-
-					$.ajax({
-					method: 'POST',
-					url: "{% url 'TableData' %}",
-					data: { csrfmiddlewaretoken: "{{csrf_token}}", 'table': JSON.stringify(result)}
-					})
-
+					result.push(th_td_array);	
+				
 				}
-        }
+				$.ajax({
+				method: 'POST',
+				url: "{% url 'TableData' %}",
+				data: { csrfmiddlewaretoken: "{{csrf_token}}", 'table': JSON.stringify(result)}
+				})
+			}
 		</script>
         <link rel="stylesheet" type="text/css" href="{% static 'NextflowRedemption/style.css' %}">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"
@@ -62,14 +69,14 @@
             <div class="w-100"></div>
             <div class="col-2 align-end">Pipeline</div>
             <div class="col-3"><input name="pipeline" value="{{ preset.template_path }}" disabled="disabled"></div>
-            <div class="col-2 align-start"><button disabled="disabled">Explore</button></div>
+            <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2 align-end">Configuration</div>
             <div class="col-3"><input name="config" disabled="disabled" value="{{ preset.template_config }}"></div>
-            <div class="col-2 align-start"><button disabled="disabled">Explore</button></div>
+            <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2 align-end">Execution location</div>
-            <div class="col-3">
+            <!-- <div class="col-3">
                 <div class="row">
                     <div class="col">
                         <input type="radio" id="def_radio" name="exec_loc" value="default" checked>
@@ -80,25 +87,29 @@
                         <label for="cus_radio">custom</label>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2"></div>
             <div class="col-3"><input/></div>
-            <div class="col-2 align-start"><button type="button">Explore</button></div>
+            <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2 align-end">Parameters</div>
             <div class="col-3">
                 <table id="tempTable" class="tempTable">
 					<thead>
 						<tr>
-							<th>Delete</th>
 							<th>Name</th>
 							<th>Value</th>
 						</tr>
 					</thead>
                     <tbody>
-						
+						{% for x in parameters %}
+						<tr>
+							<td>{{ x.name }}</td>
+							<td>{{ x.value }}</td>
+						</tr>
+						{% endfor %}
 					</tbody>
                 </table>
             </div>
