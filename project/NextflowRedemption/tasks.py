@@ -37,7 +37,11 @@ def StartPipe(idx):
         # nextflowPipe = nextflow.Pipeline(pipe.pipeline_path,pipe.pipeline_config)
         update_pipe = Pipeline.objects.get(id = idx)
         update_pipe.status = execution.status
-        update_pipe.log = execution.log
+        log = "COMMAND: " +str(execution.command)
+        log += "STATUS: " +str(execution.status)+"\n"
+        log += "DURATION: " +str(execution.duration)+"s\n"
+        log += execution.stdout
+        update_pipe.log = log
         # update = Pipeline(idx,pipe.name,execution.status,execution.log,nextflowPipe)
         # pipes.append(update)
         # save("pipeline", pipes)

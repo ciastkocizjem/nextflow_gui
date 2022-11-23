@@ -13,7 +13,7 @@
         }
         textarea{
             height: 10rem;
-            resize: none;
+            /* resize: none; */
         }
         .col-1{
             width: fit-content;
@@ -161,9 +161,7 @@
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">
-                    <textarea id={{ pipe.id|stringformat:'d'|add:'tempDetails' }} class="m-3" rows="5" cols="33" style="display: none;">
-                    {{pipe.log}}
-                    </textarea>
+                    <textarea id={{ pipe.id|stringformat:'d'|add:'tempDetails' }} class="m-3" rows="5" cols="33" style="display: none;">{{pipe.log}}</textarea>
                 </div>
             </div>
         </div>
