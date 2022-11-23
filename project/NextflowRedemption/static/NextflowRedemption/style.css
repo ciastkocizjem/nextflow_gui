@@ -43,3 +43,7 @@ progress,textarea{
 th, td{
     border-width: 1px !important;
 }
+
+.hoverPoint{
+    cursor: pointer;
+}

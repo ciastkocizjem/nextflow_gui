@@ -19,7 +19,7 @@ import nextflow
 
 class Pipeline(models.Model):
     name = models.CharField(max_length=50)
-    status = models.CharField(max_length=20)
+    status = models.CharField(max_length=20,default=None, blank=True, null=True)
     log = models.TextField(default=None, blank=True, null=True)
     pipeline_path = models.CharField(max_length=255)
     pipeline_config = models.CharField(max_length=255, default=None, blank=True, null=True)

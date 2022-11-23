@@ -165,3 +165,12 @@ def PipeProgress(request):
     try: selectedPipe.status; selectedPipe.log
     except: return JsonResponse({"execStatus": "running","details":"running"}, status=200)
     return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log}, status=200)
+
+@csrf_exempt
+def ResetPipe(request):
+    idx = int(request.POST["nr"][0])
+    reset_pipe = Pipeline.objects.get(id = idx)
+    reset_pipe.status = ""
+    reset_pipe.log = None
+    reset_pipe.save()
+    return JsonResponse({"id": idx}, status=200)

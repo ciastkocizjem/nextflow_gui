@@ -43,19 +43,15 @@
 
         function startProgress(nr) {
             var progress = document.getElementById(nr+'progress');
-            progress.value = 0;
-            var details = document.getElementById(nr+'tempDetails');
-            details.innerHTML = ""
-            var percent = document.getElementById(nr+'percent');
-            percent.innerHTML = "0%"
 
-            $.ajax({
-                type: 'GET',
-                url: "{% url 'PipeTest' %}",
-                data: {"nr":nr},
-            })
-            //setInterval(execProg, 1000, nr);
-            timeOutid = setTimeout(execProg, 1000, nr)
+            if(progress.value == 0){
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'PipeTest' %}",
+                    data: {"nr":nr},
+                })
+                timeOutid = setTimeout(execProg, 1000, nr)
+            }
         }
 
         
@@ -64,6 +60,25 @@
                 type: 'GET',
                 url: "{% url 'StopProgress' %}",
             })
+        }
+
+        function resetPipe(nr){
+            var progress = document.getElementById(nr+'progress');
+            var details = document.getElementById(nr+'tempDetails');
+            var percent = document.getElementById(nr+'percent');
+
+            if(progress.value == 100){
+                $.ajax({
+                type: 'POST',
+                url: "{% url 'PipeReset' %}",
+                data: {"nr":nr},
+                success: function (response) {
+                    percent.innerHTML = "0%"
+                    progress.value = 0
+                    details.innerHTML = "None"
+                },
+                })
+            }
         }
 
         var execProg = function execProgress(nr){
@@ -125,21 +140,29 @@
                 <!-- <div class="col-1 align-end">
                     <img src="{% static 'Images/wrench.png' %}" alt="config">
                 </div> -->
+                {% if pipe.log != none %}
                 <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
                     <progress id={{ pipe.id|stringformat:'d'|add:'progress' }} class="me-2" value="100" max="100"></progress>
                     <span id={{ pipe.id|stringformat:'d'|add:'percent' }}>100%</span>
                 </div>
+                {% else %}
+                <div class="col-4" style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                    <progress id={{ pipe.id|stringformat:'d'|add:'progress' }} class="me-2" value="0" max="100"></progress>
+                    <span id={{ pipe.id|stringformat:'d'|add:'percent' }}>0%</span>
+                </div>
+                {% endif %}
                 <div class="col-1" >
-                    <img src="{% static 'Images/run.png' %}" alt="Run" onclick="startProgress({{ pipe.id }})">
+                    <img src="{% static 'Images/run.png' %}" alt="Run" class="hoverPoint" onclick="startProgress({{ pipe.id }})">
                 </div>
                 <div class="col-1">
+                    <button onclick="stopProgress()">stop</button>
                     <button onclick="toggleDetail({{ pipe.id }})">details</button>
-                    <button onclick="stopProgress()">Stop</button>
+                    <button onclick="resetPipe({{ pipe.id }})">reset</button>
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">
-                    <!-- My_pipeline1 &#13;&#10; arg1: 5 &#13;&#10; arg2: ZIO &#13;&#10; status: completed &#13;&#10; ... -->
                     <textarea id={{ pipe.id|stringformat:'d'|add:'tempDetails' }} class="m-3" rows="5" cols="33" style="display: none;">
+                    {{pipe.log}}
                     </textarea>
                 </div>
             </div>
