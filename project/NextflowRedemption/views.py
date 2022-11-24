@@ -87,10 +87,10 @@ def configEdit(request, id=None):
         name = Template.objects.get(id = id).name + "_" + data.get("name")
         pipeline = Template.objects.get(id = id).template_path
         config = Template.objects.get(id = id).template_config
-
+        pipeline_parametsrs = data.get("table")
         #dodać parametry bo teraz chyba nie są nawet zczytywane z widoku
 
-        new_pipe = Pipeline.objects.create(name=name, pipeline_path=pipeline, pipeline_config=config)
+        new_pipe = Pipeline.objects.create(name=name, pipeline_path=pipeline, pipeline_config=config, pipleline_parameters=pipeline_parametsrs)
         new_pipe.save()
         pipes = Pipeline.objects.all()
 
@@ -117,17 +117,18 @@ def configEdit(request, id=None):
     pipes = Pipeline.objects.all().values()
     parameters = Parameter.objects.all().values()
     context = { 'preset': Template.objects.get(id = id), 'presets': presets, 'parameters': parameters}
-    return render(request, 'Config/edit.html', context)
+    return render(request, 'Config/edit.html', context) 
 
 def TableData(request):
     data = request.POST
-    print(data.get('name'), data.get('value'), data.get('table'))
-    parameter = Parameter.objects.create(
-        id=None,
-        name=data.get('name'),
-        value=data.get('value')
-    )
-    parameter.save()
+    print(data.get('table'))
+
+    # parameter = Parameter.objects.create(
+    #     id=None,
+    #     name=data.get('name'),
+    #     value=data.get('value')
+    # )
+    # parameter.save()
     # val1 = request.POST['table']
     # print(val1)
     return JsonResponse({"_":""},status=200)
