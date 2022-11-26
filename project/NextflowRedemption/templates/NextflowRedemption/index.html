@@ -67,7 +67,7 @@
             var details = document.getElementById(nr+'tempDetails');
             var percent = document.getElementById(nr+'percent');
 
-            if(progress.value == 100){
+            {
                 $.ajax({
                 type: 'POST',
                 url: "{% url 'PipeReset' %}",

@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.http import JsonResponse
 import nextflow
 import pdb
@@ -79,40 +80,23 @@ def config(request):
     context = { 'presets': presets, 'pipes': pipes}
     return render(request, 'Config/index.html', context)
 
+def saveConfig(request):
+    presets = Template.objects.all()
+    pipes = Pipeline.objects.all()
+    data = request.POST
+    idx = data.get("id")
+    name = Template.objects.get(id = idx).name + "_" + data.get("name")
+    pipeline = Template.objects.get(id = idx).template_path
+    config = Template.objects.get(id = idx).template_config
+    exec_location = data.get("location")
+    pipeline_parametsrs = data.get("table")
+    #dodać parametry bo teraz chyba nie są nawet zczytywane z widoku
+
+    new_pipe = Pipeline.objects.create(name=name, pipeline_path=pipeline, pipeline_config=config, location=exec_location, pipleline_parameters=pipeline_parametsrs)
+    new_pipe.save()
+    return JsonResponse({"_": ""}, status=200)
+
 def configEdit(request, id=None):
-    if(request.method == 'POST'):
-        presets = Template.objects.all()
-        pipes = Pipeline.objects.all()
-        data = request.POST
-        name = Template.objects.get(id = id).name + "_" + data.get("name")
-        pipeline = Template.objects.get(id = id).template_path
-        config = Template.objects.get(id = id).template_config
-        pipeline_parametsrs = data.get("table")
-        #dodać parametry bo teraz chyba nie są nawet zczytywane z widoku
-
-        new_pipe = Pipeline.objects.create(name=name, pipeline_path=pipeline, pipeline_config=config, pipleline_parameters=pipeline_parametsrs)
-        new_pipe.save()
-        pipes = Pipeline.objects.all()
-
-        # pipes.append({
-        #     "py/object": "NextflowRedemption.models.Pipeline",
-		#     "id": len(pipes),
-		#     "name": name,
-		#     "pipeline": {
-		# 	    "py/object": "nextflow.pipeline.Pipeline",
-		# 	    "path": pipeline,
-		# 	    "config": config,
-        #         "parameters": [
-        #             {"name": "aaaa", "value": "bbbb"},
-        #             {"name": "aaaa", "value": "bbbb"}
-        #         ]
-		#     }
-        # })
-        # save("pipeline", pipes)
-        # presets = load("template")
-        # pipes = load("pipeline")
-        context = { 'presets': presets, 'pipes': pipes }
-        return render(request, 'NextflowRedemption/index.html', context)
     presets = Template.objects.all().values()
     pipes = Pipeline.objects.all().values()
     parameters = Parameter.objects.all().values()
@@ -140,36 +124,28 @@ def StopProcess(request):
     
 @csrf_exempt
 def PipeTest(request):
-    idx = int(request.GET["nr"][0])
+    idx = int(request.GET["nr"])
     #pdb.set_trace()
     StartPipe.delay(idx)
     return JsonResponse({"_":""},status=200)
 
 @csrf_exempt
 def PipeProgress(request):
-    idx = int(request.GET["nr"][0])
+    idx = int(request.GET["nr"])
     pipes = Pipeline.objects.all()
     selectedPipe = None
     for x in pipes:
         if x.id == idx:
             selectedPipe = x
             break
-    # count = len(execProg.process_executions)
-    # done = 0
-    # for proc in execProg.process_executions:
-    #    if(proc.status == "COMPLETED"): 
-    #     done+=1
-    # if(done == 0):
-    #     perc = 0
-    # else:
-    #     perc = done/count*100
     try: selectedPipe.status; selectedPipe.log
     except: return JsonResponse({"execStatus": "running","details":"running"}, status=200)
     return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log}, status=200)
 
 @csrf_exempt
 def ResetPipe(request):
-    idx = int(request.POST["nr"][0])
+    idx = int(request.POST["nr"])
+    #Pipeline.objects.get(id = idx).delete()
     reset_pipe = Pipeline.objects.get(id = idx)
     reset_pipe.status = ""
     reset_pipe.log = None

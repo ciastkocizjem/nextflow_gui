@@ -9,26 +9,40 @@
 					var form_name = $("#name").val();
 					var form_config = $("#config").val();
 					var form_pipeline = $("#pipeline").val();
+					if ($("#def_radio").is(":checked")){
+						let slash = form_pipeline.lastIndexOf("/");
+						var form_location = form_pipeline.slice(0,slash)
+					}
+					else
+						var form_location = $("#location").val();
 					const result = [];
 
 					for(let tr of trs) {
-					let th_td = tr.getElementsByTagName('td');
-					if (th_td.length == 0) {
-						th_td = tr.getElementsByTagName('th');
-					}
+						let th_td = tr.getElementsByTagName('td');
+						if (th_td.length == 0) {
+							th_td = tr.getElementsByTagName('th');
+						}
+						
+						let th_td_array = Array.from(th_td); // convert HTMLCollection to an Array
+						th_td_array = th_td_array.map(tag => tag.innerText); // get the text of each element
+						if(th_td_array[0] == "Name" && th_td_array[1] == "Value")
+							continue
+						if(th_td_array[0].trim() == "")
+							continue
+						result.push(th_td_array);	
 					
-					let th_td_array = Array.from(th_td); // convert HTMLCollection to an Array
-					th_td_array = th_td_array.map(tag => tag.innerText); // get the text of each element
-					result.push(th_td_array);	
-				
-				}
-
+					}
+				var url = window.location.pathname;
+				var idd = url.substring(url.lastIndexOf('/') + 1);
 
 				$.ajax({
 				method: 'POST',
-				url: "1",
-				data: { csrfmiddlewaretoken: "{{csrf_token}}", 'table': JSON.stringify(result), 'name': form_name, 'config': form_config, 'pipeline': form_pipeline}
-				})
+				url: "{% url 'saveConfig' %}",
+				data: { csrfmiddlewaretoken: "{{csrf_token}}", id:idd, 'table': JSON.stringify(result), 'name': form_name, 'config': form_config, 'pipeline': form_pipeline, 'location':form_location}
+				,success: function (response) {
+                    window.location.href= "{% url 'index' %}";
+                }});
+				return false;
 			});
 
 
@@ -119,7 +133,7 @@
             <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2"></div>
-            <div class="col-3"><input/></div>
+            <div class="col-3"><input id="location" name="location"></div>
             <div class="col-2"></div>
             <div class="w-100"></div>
             <div class="col-2 align-end">Parameters</div>

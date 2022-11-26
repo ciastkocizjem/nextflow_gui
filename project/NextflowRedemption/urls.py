@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('config', views.config, name='config'),
     path('config/<int:id>', views.configEdit, name='configEdit'),
+    path('configSave', views.saveConfig, name='saveConfig'),
     path('runPipe', views.PipeTest, name='PipeTest'),
     path('resetPipe',views.ResetPipe, name ='PipeReset'),
     path('stopProgress', views.StopProcess, name='StopProgress'),
