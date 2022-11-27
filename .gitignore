@@ -11,6 +11,9 @@ project/.nextflow/
 work/
 !project/pipelines/
 project/pipelines/*
+!*.config
+!*.nf
+!hello.txt
 
 # Backup files # 
 *.bak 

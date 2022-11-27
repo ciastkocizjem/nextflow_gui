@@ -47,7 +47,7 @@ def logout(request):
     auth_logout(request)
     return render(request, 'NextflowRedemption/index.html', context)
 
-# @login_required(login_url='/main/login')
+@login_required(login_url='/main/login')
 def config(request):
     if(request.method == 'POST'):
         presets = Template.objects.all()
