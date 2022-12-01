@@ -18,6 +18,8 @@ def StartPipe(idx):
         pipe_params = literal_eval(pipe.pipleline_parameters)
         for elem in pipe_params:
             params[elem[0]] = elem[1]
+
+    params["resume"] = "-resume"
         
     if not os.path.exists(os.path.join(pipe.location, pipe.name)):
         os.makedirs(os.path.join(pipe.location, pipe.name))

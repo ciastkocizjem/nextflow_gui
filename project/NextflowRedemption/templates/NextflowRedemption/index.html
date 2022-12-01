@@ -55,10 +55,11 @@
         }
 
         
-        function stopProgress(){
+        function stopProgress(nr){
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: "{% url 'StopProgress' %}",
+                data: {"nr": nr}
             })
         }
 
@@ -155,7 +156,7 @@
                     <img src="{% static 'Images/run.png' %}" alt="Run" class="hoverPoint" onclick="startProgress({{ pipe.id }})">
                 </div>
                 <div class="col-1">
-                    <button onclick="stopProgress()">stop</button>
+                    <button onclick="stopProgress({{ pipe.id }})">stop</button>
                     <button onclick="toggleDetail({{ pipe.id }})">details</button>
                     <button onclick="resetPipe({{ pipe.id }})">reset</button>
                 </div>

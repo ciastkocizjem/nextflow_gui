@@ -14,6 +14,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.views.decorators.csrf import csrf_exempt
+from celery import current_app, current_task
+from project.celery import app, debug_task
 
 from NextflowRedemption.tasks import StartPipe
 import signal
@@ -117,9 +119,13 @@ def TableData(request):
     # print(val1)
     return JsonResponse({"_":""},status=200)
 
-
+@csrf_exempt
 def StopProcess(request):
-    signal.SIGTERM
+    i = app.control.inspect()
+    active = i.active()
+    key = list(active.keys())[0]
+    id = active[key][0]['id']
+    app.control.revoke(id, terminate=True, signal='SIGTERM')
     return JsonResponse({"_":""},status=200)
     
 @csrf_exempt
