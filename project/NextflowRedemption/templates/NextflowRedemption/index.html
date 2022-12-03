@@ -82,6 +82,19 @@
             }
         }
 
+        function deletePipe(id) {
+            {
+                $.ajax({
+                type: 'GET',
+                url: "{% url 'pipelineDelete' %}",
+                data: {"id":id},
+                success: function(response) {
+                    location.reload();
+                },
+                })
+            }
+        }
+
         var execProg = function execProgress(nr){
             var progress = document.getElementById(nr+'progress');
             var details = document.getElementById(nr+'tempDetails');
@@ -127,6 +140,7 @@
     <body class="m-3">
         <h1>main page</h1>
         <button class="m-3"><a href="{% url 'config' %}">Add preset</a></button>
+        <button class="m-3"><a href="{% url 'configDelete' %}">Delete preset</a></button>
         <div id="presetsDiv">
             <select size="5" id="presetSelect">
                 {% for preset in presets %}
@@ -164,6 +178,7 @@
                     <button onclick="stopProgress({{ pipe.id }})">stop</button>
                     <button onclick="toggleDetail({{ pipe.id }})">details</button>
                     <button onclick="resetPipe({{ pipe.id }})">reset</button>
+                    <button onclick="deletePipe({{ pipe.id }})">delete</button>
                 </div>
                 <div class="w-100"></div>
                 <div class="col-6">

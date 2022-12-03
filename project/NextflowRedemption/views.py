@@ -106,6 +106,28 @@ def configEdit(request, id=None):
     context = { 'preset': Template.objects.get(id = id), 'presets': presets, 'parameters': parameters}
     return render(request, 'Config/edit.html', context) 
 
+@login_required(login_url='/main/login')
+def configDelete(request):
+    presets = Template.objects.all()
+    context = {'presets' : presets}
+    return render(request, 'Config/delete.html', context)
+
+@login_required(login_url='/main/login')
+def configActualDelete(request, id=None):
+    presets = Template.objects.all().values()
+    Template.objects.get(id = id).delete()
+    context = {'presets' : presets}
+    return render(request, 'Config/delete.html', context)
+
+def pipelineDelete(request):
+    id = int(request.GET["id"])
+    Pipeline.objects.get(id = id).delete()
+    presets = Template.objects.all().values()
+    pipes = Pipeline.objects.all().values()
+    context = { 'presets': presets, 'pipes': pipes }
+    return render(request, 'NextflowRedemption/index.html', context)
+
+
 def TableData(request):
     data = request.POST
     print(data.get('table'))

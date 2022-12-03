@@ -5,6 +5,9 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('config', views.config, name='config'),
+    path('configDelete', views.configDelete, name='configDelete'),
+    path('configDelete/<int:id>', views.configActualDelete, name='configActualDelete'),
+    path('pipelineDelete', views.pipelineDelete, name='pipelineDelete'),
     path('config/<int:id>', views.configEdit, name='configEdit'),
     path('configSave', views.saveConfig, name='saveConfig'),
     path('runPipe', views.PipeTest, name='PipeTest'),
