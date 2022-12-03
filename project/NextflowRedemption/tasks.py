@@ -5,6 +5,7 @@ from celery import shared_task
 from ast import literal_eval
 #from NextflowRedemption.db_utility import save, load
 import nextflow
+import fnmatch
 import pdb
 
 from NextflowRedemption.models import Pipeline
@@ -30,6 +31,40 @@ def StartPipe(idx):
         log = "COMMAND: " +str(execution.command)
         log += "STATUS: " +str(execution.status)+"\n"
         log += "DURATION: " +str(execution.duration)+"s\n"
-        log += execution.stdout
+        tracefile = None
+        #check if tracefile was generated
+        for file in os.listdir(os.getcwd()):
+            if fnmatch.fnmatch(file, 'trace*'):
+                with open(os.path.join(os.getcwd(),file)) as f:
+                    tracefile = f.readlines()
+        # pdb.set_trace()
+        if(tracefile):
+            #log += "PROGRESS: "
+            
+            colidx = []
+            cols = tracefile[0].split('\t')
+            i = cols.index("hash") if "hash" in cols else None
+            if(i):
+                colidx.append(i)
+            j = cols.index("name") if "name" in cols else None
+            if(j):
+                colidx.append(j)
+            k = cols.index("status") if "status" in cols else None
+            if(k):
+                colidx.append(k)
+            tracefile.pop(0)
+            #pdb.set_trace()
+            # if(len(execution.process_executions)==0):
+            #     progr = 0
+            # else:
+            #     progr = round(len(tracefile)/len(execution.process_executions),0)
+            # log += str(progr*100) + "%\n"
+            log += "TRACEFILE: \n"
+            for line in tracefile:
+                cols = line.split('\t')
+                log += ("[" + cols[colidx[0]] + "]\t" + cols[colidx[1]]+ "\t" + cols[colidx[2]]+"\n")
+        else:
+            log += "STDOUT: \n"
+            log += execution.stdout
         update_pipe.log = log
         update_pipe.save()

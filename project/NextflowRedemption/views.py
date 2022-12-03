@@ -5,6 +5,8 @@ from django.shortcuts import redirect
 from django.http import JsonResponse
 import nextflow
 import pdb
+import os
+import shutil
 from NextflowRedemption.models import Pipeline, Template, Parameter
 #from NextflowRedemption.db_utility import save, load
 from django.contrib.auth.models import User
@@ -58,7 +60,6 @@ def config(request):
         pipeline = data.get("pipeline")
         print(request.FILES)
         config = data.get("config")
-
         new_preset = Template.objects.create(name=name, template_path=pipeline, template_config=config)
         # presets.append({
         #     "py/object": "NextflowRedemption.models.Template",
@@ -144,9 +145,16 @@ def PipeProgress(request):
         if x.id == idx:
             selectedPipe = x
             break
-    try: selectedPipe.status; selectedPipe.log
-    except: return JsonResponse({"execStatus": "running","details":"running"}, status=200)
-    return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log}, status=200)
+    if selectedPipe.log == None:
+        return JsonResponse({"execStatus": "running","details":"running"}, status=200)
+    #pdb.set_trace()
+    loglines = selectedPipe.log.split("\n")
+    progline = [i for i in loglines if "PROGRESS" in i]
+    if(len(progline) > 0):
+        progline = progline[0].replace("PROGRESS: ","").replace("%","")
+        return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log,"progress":progline}, status=200)
+    else:
+        return JsonResponse({"execStatus": selectedPipe.status,"details":selectedPipe.log}, status=200)
 
 @csrf_exempt
 def ResetPipe(request):
@@ -156,4 +164,6 @@ def ResetPipe(request):
     reset_pipe.status = ""
     reset_pipe.log = None
     reset_pipe.save()
+    if os.path.exists(os.path.join(reset_pipe.location, reset_pipe.name)):
+        shutil.rmtree(os.path.join(reset_pipe.location, reset_pipe.name))
     return JsonResponse({"id": idx}, status=200)

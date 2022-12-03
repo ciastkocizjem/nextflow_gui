@@ -99,7 +99,12 @@
                     //percent.innerHTML = response["execPercent"] + "%"
                     status = response["execStatus"]
                     details.innerHTML = response["details"]
-                    if(status == "OK")
+                    if (typeof response["progress"] !== 'undefined')
+                    {
+                        percent.innerHTML = response["progress"]+"%"
+                        progress.value = response["progress"]
+                    }
+                    else if(status == "OK")
                     {
                         percent.innerHTML = "100%"
                         progress.value = 100
@@ -107,7 +112,7 @@
                     else if(status == "ERR"){
                         percent.innerHTML = "100%"
                     }
-                    else
+                    if(status != "OK" && status != "ERR")
                         timeOutid = setTimeout(execProg, 1000, nr);
                 },
                 error: function (response) {
