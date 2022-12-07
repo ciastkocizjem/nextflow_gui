@@ -32,11 +32,14 @@ def StartPipe(idx):
         log += "STATUS: " +str(execution.status)+"\n"
         log += "DURATION: " +str(execution.duration)+"s\n"
         tracefile = None
+        filedate = None
         #check if tracefile was generated
         for file in os.listdir(os.getcwd()):
-            if fnmatch.fnmatch(file, 'trace*'):
+            tempdate = os.path.getatime(os.path.join(os.getcwd(),file))
+            if fnmatch.fnmatch(file, 'trace*') and (filedate == None or tempdate > filedate):
                 with open(os.path.join(os.getcwd(),file)) as f:
                     tracefile = f.readlines()
+                    filedate = tempdate
         # pdb.set_trace()
         if(tracefile):
             #log += "PROGRESS: "

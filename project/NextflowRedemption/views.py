@@ -154,6 +154,9 @@ def StopProcess(request):
 @csrf_exempt
 def PipeTest(request):
     idx = int(request.GET["nr"])
+    startpipe = Pipeline.objects.get(id = idx)
+    startpipe.log = None
+    startpipe.save()
     #pdb.set_trace()
     StartPipe.delay(idx)
     return JsonResponse({"_":""},status=200)

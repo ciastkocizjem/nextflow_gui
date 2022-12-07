@@ -44,7 +44,8 @@
         function startProgress(nr) {
             var progress = document.getElementById(nr+'progress');
 
-            if(progress.value == 0){
+            //if(progress.value == 0)
+            {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'PipeTest' %}",
@@ -100,7 +101,8 @@
             var details = document.getElementById(nr+'tempDetails');
             var percent = document.getElementById(nr+'percent');
 
-            if(progress.value < 100){
+            //if(progress.value < 100)
+            {
                 $.ajax({
                 type: 'GET',
                 url: "{% url 'PipeProgress' %}",
