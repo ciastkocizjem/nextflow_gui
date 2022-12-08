@@ -7,25 +7,24 @@ from ast import literal_eval
 import nextflow
 import fnmatch
 import pdb
+from nextflow import utils
 
 from NextflowRedemption.models import Pipeline
+from NextflowRedemption.MyPipeline import MyPipeline
 
 @shared_task()
 def StartPipe(idx):
     pipe = Pipeline.objects.get(id = idx)
-    pipelineToRun = nextflow.Pipeline(pipe.pipeline_path, pipe.pipeline_config)
+    pipelineToRun = MyPipeline(pipe.pipeline_path, pipe.pipeline_config)
     params = {}
     if(pipe.pipleline_parameters != None):
         pipe_params = literal_eval(pipe.pipleline_parameters)
         for elem in pipe_params:
             params[elem[0]] = elem[1]
-
-    params["resume"] = "-resume"
-        
     if not os.path.exists(os.path.join(pipe.location, pipe.name)):
         os.makedirs(os.path.join(pipe.location, pipe.name))
     for execution in pipelineToRun.run_and_poll(sleep=1,params=params,location=os.path.join(pipe.location, pipe.name)):
-
+        
         update_pipe = Pipeline.objects.get(id = idx)
         update_pipe.status = execution.status
         log = "COMMAND: " +str(execution.command)

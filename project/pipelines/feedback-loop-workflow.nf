@@ -65,7 +65,7 @@ workflow clock {
 workflow {
   clock
     .recurse(file(params.input))
-    .until { it -> it.size() > 100 }
+    .until { it -> it.size() > 1000 }
 
   clock
     .out
