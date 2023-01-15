@@ -14,8 +14,8 @@ class MyPipeline(Pipeline):
     def __repr__(self):
         return f"<Pipeline ({self.path})>"
 
-    @property
-    def config_string(self):
+    #@property
+    def config_string(self, extra_config=None):
         """Gets the full location of the config file as a command line
         argument.
         
